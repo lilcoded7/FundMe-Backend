@@ -1,12 +1,16 @@
-from django.urls import path
+from django.urls import path, include
 from fund.views import * 
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+
+# Admin routes
+router.register("", FundMeViewSet, basename='fundme')
+
+urlpatterns = []
 
 
 urlpatterns = [
-    path('', home, name='home'),
-    path('about/', about, name='about'),
-    path('contact/', contact, name='contact'),
-    path('causes/<str:causes_id>', causes, name='causes'),
-    path('causes/details/<str:causes_id>', causes_details, name='causes_details')
+    path("fundme/", include(router.urls)),
 ]
 
