@@ -27,3 +27,18 @@ class FundImagesViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.R
     serializer_class = FundImagesSerializer
     permission_classes  = [AllowAny]
     queryset = Fundimage.objects.all()
+
+
+
+class DonationApiView(generics.GenericAPIView):
+    serializer_class = DonationSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, fundme_id):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            fundme = get_object_or_404(FundMe, id=fundme_id)
+            serializer.validated_data['fundme'] = fundme
+            serializer.save()
+            return Response({'message': 'Amount Donated Successfully'}, status=200)
+        return Response({'message': serializer.errors}, status=400)

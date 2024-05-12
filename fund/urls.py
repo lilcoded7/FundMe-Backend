@@ -14,5 +14,6 @@ urlpatterns = []
 
 urlpatterns = [
     path("fundme/", include(router.urls)),
+    path('donation/', DonationApiView.as_view(), name='donation')
 ]
 

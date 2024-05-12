@@ -7,7 +7,7 @@ from fund.models.fundimages import Fundimage
 from fund.models.images_category import ImageCategory
 from fund.models.events import Event
 from fund.models.donates import Donation
-from fund.models.comments_reviews import CommentReaction
+from fund.models.comments import CommentReaction
 
 # Register your models here.
 
