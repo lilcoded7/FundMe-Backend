@@ -17,6 +17,7 @@ class FundImagesSerializer(serializers.ModelSerializer):
 
 
 class DonationSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Donation
-        fields = '__all__'
+        fields = ['donor_fullname', 'amount']
