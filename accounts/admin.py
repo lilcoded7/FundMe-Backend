@@ -5,3 +5,15 @@ from accounts.models import *
 
 admin.site.register(User)
 admin.site.register(UserStatus)
+
+
+admin.site.site_header = 'Fund Me'
+admin.site.site_title = 'Fund Me'
+
+# Customize the site index text (optional)
+admin.site.index_title = 'Welcome to Fund Me Admin'
+
+
+
+admin.site.register(LoggedInUserDevices)
+admin.site.register(UserVerificationCode)
