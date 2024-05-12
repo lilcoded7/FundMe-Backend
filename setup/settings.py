@@ -29,6 +29,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
     'fund',
     "drf_yasg",
     "rest_framework",
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -73,6 +76,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
 
+AUTH_USER_MODEL = 'accounts.User'
 
 
 ROOT_URLCONF = 'setup.urls'
