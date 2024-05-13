@@ -1,8 +1,8 @@
 from django.contrib import admin
 from fund.models.category import Category
-from fund.models.organizations import PartnerShip
+from fund.models.organizations import Organization
 from fund.models.fundme import FundMe
-from fund.models.volunteers import Volunteer
+from fund.models.sponsorships import Sponsorship
 from fund.models.fundimages import Fundimage
 from fund.models.images_category import ImageCategory
 from fund.models.events import Event
@@ -14,8 +14,8 @@ from fund.models.comments import CommentReaction
 
 
 admin.site.register(Category)
-admin.site.register(PartnerShip)
+admin.site.register(Organization)
 admin.site.register(FundMe)
-admin.site.register(Volunteer)
+admin.site.register(Sponsorship)
 admin.site.register(Fundimage)
 admin.site.register(ImageCategory)

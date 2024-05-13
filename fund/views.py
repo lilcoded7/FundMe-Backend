@@ -6,6 +6,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from fund.models.fundimages import Fundimage
 from fund.models.comments import CommentReaction
+from fund.models.sponsorships import Sponsorship
+from setup.permissions import IsApexAdmin
 
 
 # Create your views here.
@@ -21,6 +23,11 @@ class CreateFundMeViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     permission_classes  = [IsAuthenticated]
     queryset = FundMe.objects.all()
 
+class SponsorshipViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+    serializer_class = SponsorshipSerializer
+    permission_classes  = [AllowAny]
+    queryset = Sponsorship.objects.all()
+
 
 class FundImagesViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     serializer_class = FundImagesSerializer
@@ -28,7 +35,7 @@ class FundImagesViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.R
     queryset = Fundimage.objects.all()
 
 
-class DonerDonationViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+class ListOrRetreiveDonerDonationViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     serializer_class = DonerDonationFundMe
     permission_classes  = [AllowAny]
     queryset = Donation.objects.all()
@@ -70,3 +77,30 @@ class DonationApiView(generics.GenericAPIView):
             serializer.save()
             return Response({'message': 'Amount Donated Successfully'}, status=200)
         return Response({'message': serializer.errors}, status=400)
+    
+
+
+class OrganizationApiView(generics.GenericAPIView):
+    serializer_class = OrganizationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        organization = Organization.objects.filter(id=user.organization ,is_active=True)
+        return Response({'organization':Organization(organization, many=True)})
+        
+
+    def post(self, request):
+        serializer = self.serializer_class()
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message':'Your Request Has Been Received, We Are Currently viewing Your Request'}, 200)
+        return Response({'messages':serializer.errors}, 400)
+    
+
+class ListUpdateDeleteOrganizationViewSet(viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
+    serializer_class = Organization
+    permission_classes  = [IsApexAdmin]
+    queryset = Organization.objects.all()

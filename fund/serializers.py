@@ -3,6 +3,9 @@ from fund.models.fundme import FundMe
 from fund.models.fundimages import Fundimage
 from fund.models.donates import Donation
 from fund.models.comments import CommentReaction
+from fund.models.organizations import Organization
+from fund.models.sponsorships import Sponsorship
+from accounts.serializers import UserSerializer
 
 
 class FundMeSerializer(serializers.ModelSerializer):
@@ -36,3 +39,35 @@ class DonerDonationFundMe(serializers.ModelSerializer):
     class Meta:
         model = Donation
         fields = '__all__'
+
+
+class SponsorshipSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Sponsorship
+        fields = '__all__'
+
+
+class OrganizationSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Organization
+        exclude = ['fundme']
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

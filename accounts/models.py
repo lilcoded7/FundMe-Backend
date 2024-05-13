@@ -1,5 +1,7 @@
 # Django imports
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from fund.models.organizations import Organization
+from fund.models.sponsorships import Sponsorship
 from django.db import models
 from setup.basemodel import TimeBaseModel
 from datetime import datetime
@@ -53,6 +55,9 @@ class User(AbstractBaseUser):
 	email = models.EmailField(unique=True, blank=True)
 	user_status = models.ForeignKey(UserStatus, on_delete=models.CASCADE, null=True, blank=True)
 	
+
+	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True)
+	sponsorship = models.ForeignKey(Sponsorship, on_delete=models.CASCADE, null=True, blank=True)
 	
 	is_active = models.BooleanField(default=True)
 	date_joined = models.DateTimeField(verbose_name="date joined", auto_now_add=True)
