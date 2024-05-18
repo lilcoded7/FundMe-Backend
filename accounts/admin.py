@@ -4,7 +4,7 @@ from accounts.models import *
 # Register your models here.
 
 admin.site.register(User)
-admin.site.register(UserStatus)
+admin.site.register(Gender)
 
 
 admin.site.site_header = 'Fund Me'

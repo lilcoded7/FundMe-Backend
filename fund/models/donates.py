@@ -8,4 +8,4 @@ class Donation(TimeBaseModel):
     fundme = models.ForeignKey(FundMe, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return self.donor
+        return self.donor_fullname

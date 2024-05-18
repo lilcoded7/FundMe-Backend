@@ -69,12 +69,24 @@ class DonationApiView(generics.GenericAPIView):
     serializer_class = DonationSerializer
     permission_classes = [AllowAny]
 
+    def get_doner_name(self, request):
+        if request.user.is_authenticated:
+            doner_name = request.user.username
+
+        else:
+            doner_name = 'Anonymous'
+        print('we are donation here')
+        return doner_name
+
     def post(self, request, fundme_id):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             fundme = get_object_or_404(FundMe, id=fundme_id)
-            serializer.validated_data['fundme'] = fundme
-            serializer.save()
+            
+            doner_name = self.get_doner_name(request)
+
+             
+            Donation.objects.create(donor_fullname=doner_name, amount=serializer.validated_data['amount'], fundme=fundme)
             return Response({'message': 'Amount Donated Successfully'}, status=200)
         return Response({'message': serializer.errors}, status=400)
     

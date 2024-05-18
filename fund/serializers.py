@@ -24,7 +24,7 @@ class DonationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Donation
-        fields = ['donor_fullname', 'amount']
+        fields = ['amount']
 
 
 class CommentSerializer(serializers.ModelSerializer):

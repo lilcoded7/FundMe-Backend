@@ -8,7 +8,7 @@ from datetime import datetime
 
 
 
-class UserStatus(models.Model):
+class Gender(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
@@ -53,7 +53,7 @@ class User(AbstractBaseUser):
 	phone_number = models.CharField(max_length=30, null=True, blank=100)
 	full_name = models.CharField(max_length=100)
 	email = models.EmailField(unique=True, blank=True)
-	user_status = models.ForeignKey(UserStatus, on_delete=models.CASCADE, null=True, blank=True)
+	gender = models.ForeignKey(Gender, on_delete=models.CASCADE, null=True, blank=True)
 	
 
 	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True)
