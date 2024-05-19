@@ -120,7 +120,7 @@ class LoggedInUserDevices(TimeBaseModel):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.user.get_full_name()}-{self.ip_address}"
+        return f"{self.user.full_name}-{self.ip_address}"
 
     def is_refresh_token_expired(self):
         return datetime.utcnow().day >= self.created_at.day + 1

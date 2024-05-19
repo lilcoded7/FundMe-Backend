@@ -52,7 +52,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Organization
-        exclude = ['fundme']
+        exclude = ['fundme', 'is_active']
 
 
 
