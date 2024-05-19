@@ -18,6 +18,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
             "email",
             "phone_number",
             "gender",
+            'password'
         ]
 
     def create(self, validated_data):

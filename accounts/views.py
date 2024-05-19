@@ -4,7 +4,7 @@ from rest_framework import viewsets, mixins, generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-
+from fund.notifications import EmailSender
 # local app imports
 from accounts.models import User, UserVerificationCode
 from .serializers import *
@@ -19,8 +19,7 @@ class CreateUserView(generics.GenericAPIView):
         data = self.serializer_class(data=request.data)
         data.is_valid(raise_exception=True)
         user = data.save()
-        # Get user verification code
-        code = UserVerificationCode.objects.filter(user=user).first()
+        EmailSender.register_sucess(user)
         # TODO: send verification code to user mail
         return Response({"message": "Account created successfully"})
 

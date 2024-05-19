@@ -8,6 +8,7 @@ from fund.models.fundimages import Fundimage
 from fund.models.comments import CommentReaction
 from fund.models.sponsorships import Sponsorship
 from setup.permissions import IsApexAdmin
+from fund.notifications import EmailSender
 
 
 # Create your views here.
@@ -71,7 +72,9 @@ class DonationApiView(generics.GenericAPIView):
 
     def get_doner_name(self, request):
         if request.user.is_authenticated:
-            doner_name = request.user.username
+            user = request.user
+            EmailSender.donation_sucess(user)
+            doner_name = user.username
 
         else:
             doner_name = 'Anonymous'
