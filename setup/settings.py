@@ -109,7 +109,6 @@ WSGI_APPLICATION = 'setup.wsgi.application'
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
