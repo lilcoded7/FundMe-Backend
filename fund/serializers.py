@@ -6,11 +6,19 @@ from fund.models.comments import CommentReaction
 from fund.models.organizations import Organization
 from fund.models.sponsorships import Sponsorship
 from accounts.serializers import UserSerializer
+from fund.models.category import Category
+from fund.models.organizations import OrganizationCategory
 
 
 class FundMeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FundMe
+        fields = '__all__'
+
+
+class OrganizationCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrganizationCategory
         fields = '__all__'
 
 
@@ -56,8 +64,11 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 
-
-
+class CategorySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Category
+        fields = '__all__'
 
 
 

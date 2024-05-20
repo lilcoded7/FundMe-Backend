@@ -1,11 +1,18 @@
 from rest_framework import serializers
 from accounts.models import User
+from accounts.models import Gender
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ["id", "password", "is_admin", "is_staff", "is_superuser"]
+
+
+class GenderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gender
+        fields = '__all__'
 
 
 class CreateUserSerializer(serializers.ModelSerializer):

@@ -9,31 +9,55 @@ from fund.models.comments import CommentReaction
 from fund.models.sponsorships import Sponsorship
 from setup.permissions import IsApexAdmin
 from fund.notifications import EmailSender
+from accounts.models import Gender
+from accounts.serializers import GenderSerializer
+from fund.models.category import Category
+from fund.models.organizations import OrganizationCategory
 
 
 # Create your views here.
 
 
-class FundMeViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
-    serializer_class = FundMeSerializer
-    permission_classes  = [AllowAny]
+class ListRetrievefundMedoneAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = FundMe.objects.all()
+    serializer_class = FundMeSerializer
+    permission_classes = [AllowAny]
+
+class ListRetrieveOrganizationCategoryAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    queryset = OrganizationCategory.objects.all()
+    serializer_class = OrganizationCategorySerializer
+    permission_classes = [AllowAny]
+
+class ListRetrieveGenderAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    queryset = Gender.objects.all()
+    serializer_class = GenderSerializer
+    permission_classes = [AllowAny]
+    
 
 class CreateFundMeViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     serializer_class = FundMeSerializer
     permission_classes  = [IsAuthenticated]
     queryset = FundMe.objects.all()
 
-class SponsorshipViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
-    serializer_class = SponsorshipSerializer
-    permission_classes  = [AllowAny]
+    
+    
+class ListRetrieveSponsorshipAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = Sponsorship.objects.all()
+    serializer_class = SponsorshipSerializer
+    permission_classes = [AllowAny]
 
-
-class FundImagesViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
-    serializer_class = FundImagesSerializer
-    permission_classes  = [AllowAny]
+    
+class ListRetrieveFundImagesAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = Fundimage.objects.all()
+    serializer_class = FundImagesSerializer
+    permission_classes = [AllowAny]
+
+
+class ListRegiriveCategoryApiView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
+    queryset = Category.objects.all()
+
 
 
 class ListOrRetreiveDonerDonationViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
@@ -115,7 +139,29 @@ class OrganizationApiView(generics.GenericAPIView):
         return Response({'messages':serializer.errors}, 400)
     
 
-class ListUpdateDeleteOrganizationViewSet(viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
+class ListUpdateDeleteOrganizationApiView(viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
     serializer_class = Organization
     permission_classes  = [IsApexAdmin]
     queryset = Organization.objects.all()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
