@@ -8,6 +8,7 @@ from fund.models.sponsorships import Sponsorship
 from accounts.serializers import UserSerializer
 from fund.models.category import Category
 from fund.models.organizations import OrganizationCategory
+from fund.models.transactions import Transaction
 
 
 class FundMeSerializer(serializers.ModelSerializer):
@@ -72,11 +73,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 
-
-
-
-
-
+class TransactionSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Transaction
+        exclude = ['trans_id']
 
 
 

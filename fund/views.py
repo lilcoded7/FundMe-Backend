@@ -13,7 +13,9 @@ from accounts.models import Gender
 from accounts.serializers import GenderSerializer
 from fund.models.category import Category
 from fund.models.organizations import OrganizationCategory
-
+from pypaystack import Transaction
+from pypaystack.errors import InvalidDataError
+import random
 
 # Create your views here.
 
@@ -144,24 +146,40 @@ class ListUpdateDeleteOrganizationApiView(viewsets.GenericViewSet, mixins.Update
     permission_classes  = [IsApexAdmin]
     queryset = Organization.objects.all()
 
+from decimal import Decimal
 
+class TransactionAPIView(generics.GenericAPIView):
+    serializer_class = TransactionSerializer
+    permission_classes = [AllowAny]
 
+    def transaction_id(self):
+        return random.randint(0, 99999999)  # Ensure the range is correct
 
+    def process_transaction(self, data):
+        try:
+            amount = Decimal(data['amount'])  # Convert to Decimal
+            transaction = Transaction(authorization_key='sk_test_e930e4c3d43e2bc41babb2846d05919c11c42d86')
+            transaction.charge(
+                email='lilcoded7@gmail.com',
+                amount=int(amount * 100),  
+                auth_code=str(self.transaction_id())
+            )
+            return transaction.verify(str(self.transaction_id()))
+        except InvalidDataError as e:
+            print(f"InvalidDataError: {e}")
+            return False
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return False
 
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
 
+        if serializer.is_valid():
+            data = serializer.data
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            if not self.process_transaction(data):
+                return Response({'message': 'Transaction Failed to process'}, status=400)
+          
+            return Response({'message': 'Amount Donated Successfully'}, status=200)
+        return Response({'message': serializer.errors}, status=400)

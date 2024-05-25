@@ -23,6 +23,7 @@ urlpatterns = []
 urlpatterns = [
     path("fundme/", include(router.urls)),
     path('donate/<int:fundme_id>/', DonationApiView.as_view(), name='donate'),
-    path('organizations/', OrganizationApiView.as_view(), name='organizations')
+    path('organizations/', OrganizationApiView.as_view(), name='organizations'),
+    path('transaction/', TransactionAPIView.as_view(), name='transaction')
 ]
 
