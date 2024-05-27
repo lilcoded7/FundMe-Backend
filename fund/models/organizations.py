@@ -1,11 +1,14 @@
 from setup.basemodel import TimeBaseModel
 from fund.models.fundme import FundMe
-from fund.models.category import Category
 from django.db import models
+
 
 
 class OrganizationCategory(TimeBaseModel):
     name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
 
 
 class Organization(TimeBaseModel):

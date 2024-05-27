@@ -133,10 +133,13 @@ class OrganizationApiView(generics.GenericAPIView):
         
 
     def post(self, request):
+        user = request.user
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
+            organization = serializer.save()
+            user.organization=organization
+            user.save()
             return Response({'message':'Your Request Has Been Received, We Are Currently viewing Your Request'}, 200)
         return Response({'messages':serializer.errors}, 400)
     
@@ -158,11 +161,11 @@ class TransactionAPIView(generics.GenericAPIView):
     def process_transaction(self, data):
         try:
             amount = Decimal(data['amount'])  # Convert to Decimal
-            transaction = Transaction(authorization_key='sk_test_e930e4c3d43e2bc41babb2846d05919c11c42d86')
+            transaction = Transaction(authorization_key='sk_live_d4039e928f5d4d81fe00acd97652fed8c60325b3')
             transaction.charge(
                 email='lilcoded7@gmail.com',
-                amount=int(amount * 100),  
-                auth_code=str(self.transaction_id())
+                auth_code=str(self.transaction_id()),
+                amount=int(amount * 100)
             )
             return transaction.verify(str(self.transaction_id()))
         except InvalidDataError as e:

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from fund.models.category import Category
-from fund.models.organizations import Organization
+from fund.models.organizations import Organization, OrganizationCategory
 from fund.models.fundme import FundMe
 from fund.models.sponsorships import Sponsorship
 from fund.models.fundimages import Fundimage
@@ -20,3 +20,6 @@ admin.site.register(Sponsorship)
 admin.site.register(Fundimage)
 admin.site.register(ImageCategory)
 admin.site.register(Donation)
+admin.site.register(OrganizationCategory)
+admin.site.register(Event)
+admin.site.register(CommentReaction)
