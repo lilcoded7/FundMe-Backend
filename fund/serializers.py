@@ -17,7 +17,7 @@ class FundMeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class OrganizationCategorySerializer(serializers.ModelSerializer):
+class OrganizationsCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganizationCategory
         fields = '__all__'

@@ -4,6 +4,7 @@ from fund.serializers import *
 from rest_framework import generics, viewsets, mixins
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from fund.models.fundimages import Fundimage
 from fund.models.comments import CommentReaction
 from fund.models.sponsorships import Sponsorship
@@ -25,10 +26,13 @@ class ListRetrievefundMedoneAPIView(viewsets.GenericViewSet, mixins.ListModelMix
     serializer_class = FundMeSerializer
     permission_classes = [AllowAny]
 
-class ListRetrieveOrganizationCategoryAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
-    queryset = OrganizationCategory.objects.all()
-    serializer_class = OrganizationCategorySerializer
+class ListOrganizationCategoryAPIView(APIView):
     permission_classes = [AllowAny]
+
+    def get(self, request):
+        category = OrganizationCategory.objects.all()
+        serializer = OrganizationsCategorySerializer(category, many=True)
+        return Response({'org_category':serializer.data}, 200)
 
 class ListRetrieveGenderAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = Gender.objects.all()
@@ -41,7 +45,6 @@ class CreateFundMeViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     permission_classes  = [IsAuthenticated]
     queryset = FundMe.objects.all()
 
-    
     
 class ListRetrieveSponsorshipAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = Sponsorship.objects.all()
@@ -129,7 +132,7 @@ class OrganizationApiView(generics.GenericAPIView):
         user = request.user
 
         organization = Organization.objects.filter(id=user.organization ,is_active=True)
-        return Response({'organization':Organization(organization, many=True)})
+        return Response({'organization':self.serializer_class(organization, many=True).data})
         
 
     def post(self, request):
