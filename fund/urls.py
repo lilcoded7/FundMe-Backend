@@ -14,6 +14,7 @@ router.register('gender', ListRetrieveGenderAPIView, basename='gender')
 router.register('categories', ListRegiriveCategoryApiView, basename='category')
 router.register('get/fundme', ListRetrievefundMedoneAPIView, basename='don')
 router.register('sponsorship', ListRetrieveSponsorshipAPIView, basename='sponsorship')
+router.register('list/donation', ListDonationfundMedoneAPIView, basename='listdonation')
 
 urlpatterns = []
 
@@ -23,6 +24,9 @@ urlpatterns = [
     path('donate/<int:fundme_id>/', DonationApiView.as_view(), name='donate'),
     path('organizations/', OrganizationApiView.as_view(), name='organizations'),
     path('transaction/', TransactionAPIView.as_view(), name='transaction'),
-    path('organization/categorys', ListOrganizationCategoryAPIView.as_view(), name='organizationcategory')
+    path('organization/categorys', ListOrganizationCategoryAPIView.as_view(), name='organizationcategory'),
+    path('analysis/', AnalyticsAPIView.as_view(), name='analysis'),
+    path('list/organization/fundme/analysis/', OrganizationFundMeAnalysisApiView.as_view(), name='org_analysis')
+    
 ]
 

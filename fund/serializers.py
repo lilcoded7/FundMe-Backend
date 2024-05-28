@@ -8,7 +8,7 @@ from fund.models.sponsorships import Sponsorship
 from accounts.serializers import UserSerializer
 from fund.models.category import Category
 from fund.models.organizations import OrganizationCategory
-from fund.models.transactions import Transaction
+from fund.models.transactions import Transactions
 
 
 class FundMeSerializer(serializers.ModelSerializer):
@@ -61,7 +61,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Organization
-        exclude = ['fundme', 'is_active']
+        exclude = ['is_active']
 
 
 
@@ -76,10 +76,14 @@ class CategorySerializer(serializers.ModelSerializer):
 class TransactionSerializer(serializers.ModelSerializer):
     
     class Meta:
-        model = Transaction
+        model = Transactions
         exclude = ['trans_id']
 
 
 
 
-
+class DonationSerializer(serializers.ModelSerializer):
+    fundme = FundMeSerializer()
+    class Meta:
+        model = Donation
+        fields = '__all__'

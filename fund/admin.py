@@ -8,7 +8,8 @@ from fund.models.images_category import ImageCategory
 from fund.models.events import Event
 from fund.models.donates import Donation
 from fund.models.comments import CommentReaction
-
+from fund.models.transactions import Transactions
+from fund.models.organfunme import OrganFund
 # Register your models here.
 
 
@@ -23,3 +24,5 @@ admin.site.register(Donation)
 admin.site.register(OrganizationCategory)
 admin.site.register(Event)
 admin.site.register(CommentReaction)
+admin.site.register(Transactions)
+admin.site.register(OrganFund)

@@ -16,6 +16,10 @@ from fund.models.category import Category
 from fund.models.organizations import OrganizationCategory
 from pypaystack import Transaction
 from pypaystack.errors import InvalidDataError
+from fund.models.transactions import Transactions
+from fund.models.organfunme import OrganFund
+from fund.models.company import Company
+from django.db.models import Sum 
 import random
 
 # Create your views here.
@@ -189,3 +193,81 @@ class TransactionAPIView(generics.GenericAPIView):
           
             return Response({'message': 'Amount Donated Successfully'}, status=200)
         return Response({'message': serializer.errors}, status=400)
+
+
+class AnalyticsAPIView(APIView):
+    def total_fundme(self):
+        fundme = FundMe.objects.all()
+        return fundme.count()
+
+    def total_organization(self):
+        organization = Organization.objects.all()
+        return organization.count()
+    
+    def total_sponsorship(self):
+        sponsorship = Sponsorship.objects.all()
+        return sponsorship.count()
+    
+    def total_transaction(self):
+        return Transactions.objects.aggregate(total=Sum('amount'))['total']
+
+    def all_time_profit(self):
+        return Company.objects.aggregate(total=Sum('wallet'))['total']
+
+    def get(self, request):
+        
+        request_body = {
+            'total_fundme':self.total_fundme(),
+            'total_organization':self.total_organization(),
+            'total_sponsorship':self.total_sponsorship(),
+            'total_transaction':self.total_transaction()
+        }
+        return Response({'analysis':request_body})
+
+
+
+class ListDonationfundMedoneAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    queryset = Donation.objects.all()
+    serializer_class = DonationSerializer
+    permission_classes = [IsAuthenticated]
+
+
+
+class OrganizationFundMeAnalysisApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def total_donations_for_organization(self, organization_id):
+            
+        fundme_ids = OrganFund.objects.filter(organization_id=organization_id).values_list('fundme_id', flat=True)
+        
+        total_donations = Donation.objects.filter(fundme_id__in=fundme_ids).aggregate(total_amount=Sum('amount'))
+        
+        return total_donations['total_amount'] if total_donations['total_amount'] is not None else 0.00
+
+
+    def get_organization(self, organization):
+        return get_object_or_404(Organization, id=organization.id)
+
+    def get_all_organ_fundme(self, org_fundme):
+
+        return [
+            {
+                'organ_fundme':FundMeSerializer(FundMe.objects.filter(id=fund.id), many=True).data
+            }
+            for fund in org_fundme
+        ]
+  
+    def get(self, request):
+        user = request.user 
+
+        organization = OrganFund.objects.filter(organization=user.organization.id)
+
+        return Response([
+            {
+                'total_org_fundme':organization.count(),
+                'organ_fundme':self.get_all_organ_fundme(organization),
+                'organization':OrganizationSerializer(self.get_organization(user.organization)).data,
+                'total_amount_raised':self.total_donations_for_organization(user.organization.id)
+            }
+        ])
+

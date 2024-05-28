@@ -9,3 +9,16 @@ class Company(TimeBaseModel):
 
     def __str__(self):
         return self.name
+    
+
+
+
+
+
+
+
+
+
+
+
+    

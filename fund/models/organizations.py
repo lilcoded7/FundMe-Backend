@@ -12,7 +12,6 @@ class OrganizationCategory(TimeBaseModel):
 
 
 class Organization(TimeBaseModel):
-    fundme = models.ForeignKey(FundMe, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=100, null=True, blank=True)
     category = models.ForeignKey(OrganizationCategory, on_delete=models.CASCADE, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)

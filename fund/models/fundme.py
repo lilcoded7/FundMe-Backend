@@ -5,7 +5,7 @@ from django.db import models
 
 class FundMe(TimeBaseModel):
     image = models.ImageField()
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     description = models.TextField()
     location = models.CharField(max_length=100, null=True, blank=True)
