@@ -1,5 +1,6 @@
 from setup.basemodel import TimeBaseModel
 from fund.models.category import Category
+from django.conf import Settings
 from django.db import models 
 
 
@@ -16,6 +17,13 @@ class FundMe(TimeBaseModel):
         return self.title
     
 
-    
+    def save(self, *args, **kwargs):
+        # Call the original save method
+        super().save(*args, **kwargs)
+
+        # Prepend the base URL to the image field
+        if self.image:
+            self.image = f'{settings.MEDIA_URL}{self.image}'
+        super().save(*args, **kwargs)
 
     
