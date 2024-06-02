@@ -3,7 +3,7 @@ from fund.models.fundme import FundMe
 from fund.models.fundimages import Fundimage
 from fund.models.donates import Donation
 from fund.models.comments import CommentReaction
-from fund.models.organizations import Organization
+from fund.models.organizations import Organization, BankAccount
 from fund.models.sponsorships import Sponsorship
 from accounts.serializers import UserSerializer
 from fund.models.category import Category
@@ -102,4 +102,11 @@ class DonationsSerializer(serializers.ModelSerializer):
     fundme = FundMeSerializer()
     class Meta:
         model = Donation
+        fields = '__all__'
+
+
+
+class BankAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BankAccount
         fields = '__all__'

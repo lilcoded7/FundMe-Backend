@@ -12,10 +12,12 @@ router.register('organization', ListUpdateDeleteOrganizationApiView, basename='o
 router.register('gender', ListRetrieveGenderAPIView, basename='gender')
 router.register('categories', ListRegiriveCategoryApiView, basename='category')
 router.register('get/fundme', ListRetrievefundMedoneAPIView, basename='don')
-router.register('sponsorship', ListRetrieveSponsorshipAPIView, basename='sponsorship')
+router.register('sponsorship', ListRetrieveSponsorshipViewSet, basename='sponsorship')
 router.register('list/donation', ListDonationfundMedoneAPIView, basename='listdonation')
 router.register('list/commets', ListRegiriveCommentsApiView, basename='list_comments')
 router.register('create/sponsorship', CreateSponsorshipViewSet, basename='create_sponshorship')
+router.register('create/bank/account', CreateBankAccountViewSet, basename='bankaccount')
+router.register('bank/retrieve/account', ListRetrieveBankAccountViewSet, basename='listbankaccount')
 
 
 urlpatterns = [

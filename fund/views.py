@@ -55,8 +55,22 @@ class CreateSponsorshipViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin)
     permission_classes  = [IsAuthenticated]
     queryset = Sponsorship.objects.all()
 
+
+
+
+class CreateBankAccountViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+    serializer_class = BankAccountSerializer
+    permission_classes  = [IsAuthenticated]
+    queryset = BankAccount.objects.all()
+
+
+class ListRetrieveBankAccountViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    queryset = BankAccount.objects.all()
+    serializer_class = BankAccountSerializer
+    permission_classes = [AllowAny]
+
     
-class ListRetrieveSponsorshipAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+class ListRetrieveSponsorshipViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = Sponsorship.objects.all()
     serializer_class = SponsorshipSerializer
     permission_classes = [AllowAny]
@@ -147,7 +161,7 @@ class OrganizationApiView(generics.GenericAPIView):
     def get(self, request):
         user = request.user
 
-        organization = Organization.objects.filter(id=user.organization ,is_active=True)
+        organization = Organization.objects.filter(id=user.organization.id ,is_active=True)
         return Response({'organization':self.serializer_class(organization, many=True).data})
         
 
@@ -227,10 +241,10 @@ class FundMeAnalyticsAPIView(APIView):
         return Company.objects.aggregate(total=Sum('wallet'))['total']
     
     def get_total_individual_organization(self):
-        return Organization.objects.filter(category_name='Individual').count()
+        return Organization.objects.filter(name='Individual').count()
     
     def get_total_charity_organization(self):
-        return Organization.objects.filter(category_name='Charity').count()
+        return Organization.objects.filter(name='Charity').count()
     
 
     def get(self, request):
@@ -239,7 +253,7 @@ class FundMeAnalyticsAPIView(APIView):
             'total_fundme':self.total_fundme(),
             'total_organization':self.total_organization(),
             'total_sponsorship':self.total_sponsorship(),
-            'total_transaction':self.total_transaction(),
+            'total_donations':self.total_donations(),
             'get_total_individual_organization':self.get_total_individual_organization(),
             'get_total_charity_organization':self.get_total_charity_organization(),
             'all_time_profit':self.all_time_profit()
@@ -265,7 +279,7 @@ class OrganizationFundMeAnalysisApiView(APIView):
         total_donations = Donation.objects.filter(fundme_id__in=fundme_ids).aggregate(total_amount=Sum('amount'))
         
         return total_donations['total_amount'] if total_donations['total_amount'] is not None else 0.00
-
+    
 
     def get_organization(self, organization):
         return get_object_or_404(Organization, id=organization.id)
@@ -282,8 +296,6 @@ class OrganizationFundMeAnalysisApiView(APIView):
     def get_total_income(self, user):
         return Organization.objects.filter(id=user.organization.id).aggregate(total=Sum('wallet'))['total']
     
-    def testing(self):
-        ...
   
     def get(self, request):
         user = request.user 
@@ -298,7 +310,5 @@ class OrganizationFundMeAnalysisApiView(APIView):
                 'total_amount_raised':self.total_donations_for_organization(user.organization.id),
                 'all_time_amount_raised':self.get_total_income(user)
             }
-            ,
-            200
         ])
 

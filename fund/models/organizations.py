@@ -1,5 +1,5 @@
 from setup.basemodel import TimeBaseModel
-from fund.models.fundme import FundMe
+from django.conf import settings
 from django.db import models
 
 
@@ -22,14 +22,19 @@ class Organization(TimeBaseModel):
     is_active = models.BooleanField(default=False, null=True, blank=True)
     logo = models.ImageField(null=True, blank=True)
     cert = models.FileField(null=True, blank=True)
+    
 
     def __str__(self):
         return f'Organization: {self.name} Location: {self.location}'
 
 
 
+class BankAccount(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    bank_name = models.CharField(max_length=100)
+    account_number = models.CharField(max_length=500)
+    branch_code = models.CharField(max_length=20)
+    location = models.CharField(max_length=100)
 
-
-
-
-
+    def __str__(self):
+        return self.bank_name
