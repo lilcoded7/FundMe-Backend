@@ -278,6 +278,9 @@ class OrganizationFundMeAnalysisApiView(APIView):
             }
             for fund in org_fundme
         ]
+    
+    def get_total_income(self, user):
+        return Organization.objects.filter(id=user.organization.id).aggregate(total=Sum('wallet'))['total']
   
     def get(self, request):
         user = request.user 
@@ -289,7 +292,10 @@ class OrganizationFundMeAnalysisApiView(APIView):
                 'total_org_fundme':organization.count(),
                 'organ_fundme':self.get_all_organ_fundme(organization),
                 'organization':OrganizationSerializer(self.get_organization(user.organization)).data,
-                'total_amount_raised':self.total_donations_for_organization(user.organization.id)
+                'total_amount_raised':self.total_donations_for_organization(user.organization.id),
+                'all_time_amount_raised':self.get_total_income(user)
             }
+            ,
+            200
         ])
 
