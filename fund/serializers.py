@@ -9,12 +9,20 @@ from accounts.serializers import UserSerializer
 from fund.models.category import Category
 from fund.models.organizations import OrganizationCategory
 from fund.models.transactions import Transactions
+from fund.models.company import Company
 
 
 class FundMeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FundMe
         fields = '__all__'
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = '__all__'
+
 
 
 class OrganizationsCategorySerializer(serializers.ModelSerializer):
@@ -34,9 +42,18 @@ class DonationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Donation
         fields = ['amount']
+    
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = CommentReaction
+        fields = ['message']
+
+
+class CommentsSerializer(serializers.ModelSerializer):
+    fundme = FundMeSerializer()
     class Meta:
         model = CommentReaction
         fields = '__all__'
@@ -81,8 +98,7 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 
 
-
-class DonationSerializer(serializers.ModelSerializer):
+class DonationsSerializer(serializers.ModelSerializer):
     fundme = FundMeSerializer()
     class Meta:
         model = Donation

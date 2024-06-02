@@ -49,6 +49,12 @@ class CreateFundMeViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     permission_classes  = [IsAuthenticated]
     queryset = FundMe.objects.all()
 
+
+class CreateSponsorshipViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+    serializer_class = SponsorshipSerializer
+    permission_classes  = [IsAuthenticated]
+    queryset = Sponsorship.objects.all()
+
     
 class ListRetrieveSponsorshipAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = Sponsorship.objects.all()
@@ -68,6 +74,12 @@ class ListRegiriveCategoryApiView(viewsets.GenericViewSet, mixins.ListModelMixin
     queryset = Category.objects.all()
 
 
+class ListRegiriveCommentsApiView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    serializer_class = CommentsSerializer
+    permission_classes = [AllowAny]
+    queryset = CommentReaction.objects.all()
+
+
 
 class ListOrRetreiveDonerDonationViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     serializer_class = DonerDonationFundMe
@@ -75,26 +87,25 @@ class ListOrRetreiveDonerDonationViewSet(viewsets.GenericViewSet, mixins.ListMod
     queryset = Donation.objects.all()
 
 
-class CommentViewSet(viewsets.ViewSet):
+class CommentAPIView(generics.GenericAPIView):
     serializer_class = CommentSerializer
     permission_classes = [AllowAny]
 
     def get_username(self, request):
         if request.user.is_authenticated:
             username = request.user.username
-            profile = request.user.profile  
         else:
             username = 'Anonymous'
-            profile = None
-        return username, profile
+        return username
 
-    def create(self, request):
+    def post(self, request, fundme_id):
         serializer = self.serializer_class(data=request.data)
+
         if serializer.is_valid():
-            username, profile = self.get_username(request)
-            serializer.validated_data['username'] = username
-            serializer.validated_data['profile'] = profile
-            serializer.save()
+            fundme = get_object_or_404(FundMe, id=fundme_id)
+            username = self.get_username(request)
+
+            CommentReaction.objects.create(fundme=fundme, username=username, message=serializer.data['message'])
             return Response({'message': 'Commented'}, status=200)
         return Response({'message': 'Failed to comment', 'errors': serializer.errors}, status=400)
 
@@ -126,6 +137,7 @@ class DonationApiView(generics.GenericAPIView):
             return Response({'message': 'Amount Donated Successfully'}, status=200)
         return Response({'message': serializer.errors}, status=400)
     
+
 
 
 class OrganizationApiView(generics.GenericAPIView):
@@ -195,7 +207,7 @@ class TransactionAPIView(generics.GenericAPIView):
         return Response({'message': serializer.errors}, status=400)
 
 
-class AnalyticsAPIView(APIView):
+class FundMeAnalyticsAPIView(APIView):
     def total_fundme(self):
         fundme = FundMe.objects.all()
         return fundme.count()
@@ -208,11 +220,18 @@ class AnalyticsAPIView(APIView):
         sponsorship = Sponsorship.objects.all()
         return sponsorship.count()
     
-    def total_transaction(self):
-        return Transactions.objects.aggregate(total=Sum('amount'))['total']
+    def total_donations(self):
+        return Donation.objects.aggregate(total=Sum('amount'))['total']
 
     def all_time_profit(self):
         return Company.objects.aggregate(total=Sum('wallet'))['total']
+    
+    def get_total_individual_organization(self):
+        return Organization.objects.filter(category_name='Individual').count()
+    
+    def get_total_charity_organization(self):
+        return Organization.objects.filter(category_name='Charity').count()
+    
 
     def get(self, request):
         
@@ -220,7 +239,10 @@ class AnalyticsAPIView(APIView):
             'total_fundme':self.total_fundme(),
             'total_organization':self.total_organization(),
             'total_sponsorship':self.total_sponsorship(),
-            'total_transaction':self.total_transaction()
+            'total_transaction':self.total_transaction(),
+            'get_total_individual_organization':self.get_total_individual_organization(),
+            'get_total_charity_organization':self.get_total_charity_organization(),
+            'all_time_profit':self.all_time_profit()
         }
         return Response({'analysis':request_body})
 

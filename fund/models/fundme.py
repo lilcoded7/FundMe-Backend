@@ -16,14 +16,3 @@ class FundMe(TimeBaseModel):
     def __str__(self) -> str:
         return self.title
     
-
-    def save(self, *args, **kwargs):
-        # Call the original save method
-        super().save(*args, **kwargs)
-
-        # Prepend the base URL to the image field
-        if self.image:
-            self.image = f'{settings.MEDIA_URL}{self.image}'
-        super().save(*args, **kwargs)
-
-    
