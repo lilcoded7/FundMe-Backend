@@ -281,6 +281,9 @@ class OrganizationFundMeAnalysisApiView(APIView):
     
     def get_total_income(self, user):
         return Organization.objects.filter(id=user.organization.id).aggregate(total=Sum('wallet'))['total']
+    
+    def testing(self):
+        ...
   
     def get(self, request):
         user = request.user 
