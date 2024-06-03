@@ -246,8 +246,13 @@ class FundMeAnalyticsAPIView(APIView):
     def get_total_charity_organization(self):
         return Organization.objects.filter(name='Charity').count()
     
+    def get_bank_account(self, user):
+        return get_object_or_404(BankAccount, user=user.id)
+    
 
     def get(self, request):
+
+        user = request.user 
         
         request_body = {
             'total_fundme':self.total_fundme(),
@@ -256,7 +261,9 @@ class FundMeAnalyticsAPIView(APIView):
             'total_donations':self.total_donations(),
             'get_total_individual_organization':self.get_total_individual_organization(),
             'get_total_charity_organization':self.get_total_charity_organization(),
-            'all_time_profit':self.all_time_profit()
+            'all_time_profit':self.all_time_profit(),
+            'bank_account':self.get_bank_account(user)
+
         }
         return Response({'analysis':request_body})
 
