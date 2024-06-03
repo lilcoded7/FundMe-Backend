@@ -1,5 +1,6 @@
 from setup.basemodel import TimeBaseModel
 from fund.models.category import Category
+from fund.models.organizations import Organization
 from django.conf import Settings
 from django.db import models 
 

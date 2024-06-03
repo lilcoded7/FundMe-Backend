@@ -28,9 +28,8 @@ class Organization(TimeBaseModel):
         return f'Organization: {self.name} Location: {self.location}'
 
 
-
 class BankAccount(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     bank_name = models.CharField(max_length=100)
     account_number = models.CharField(max_length=500)
     branch_code = models.CharField(max_length=20)

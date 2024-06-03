@@ -296,6 +296,10 @@ class OrganizationFundMeAnalysisApiView(APIView):
     def get_total_income(self, user):
         return Organization.objects.filter(id=user.organization.id).aggregate(total=Sum('wallet'))['total']
     
+    def get_organ_bank_account(self, user):
+        bank_account = get_object_or_404(BankAccount, user=user.id)
+
+        return BankAccountSerializer(bank_account).data
   
     def get(self, request):
         user = request.user 
@@ -308,7 +312,8 @@ class OrganizationFundMeAnalysisApiView(APIView):
                 'organ_fundme':self.get_all_organ_fundme(organization),
                 'organization':OrganizationSerializer(self.get_organization(user.organization)).data,
                 'total_amount_raised':self.total_donations_for_organization(user.organization.id),
-                'all_time_amount_raised_wallet':self.get_total_income(user)
+                'all_time_amount_raised_wallet':self.get_total_income(user),
+                'bank_account':self.get_organ_bank_account(user)
             }
         ])
 
@@ -331,4 +336,5 @@ class CreateOrganizationFundMe(generics.GenericAPIView):
             return Response({'message':'Organization is not approved'}, 400)
         return Response({'message':serializer.errors}, 400)
     
+
 
