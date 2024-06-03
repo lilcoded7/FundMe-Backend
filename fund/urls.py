@@ -29,6 +29,7 @@ urlpatterns = [
     path('analysis/', FundMeAnalyticsAPIView.as_view(), name='analysis'),
     path('list/organization/fundme/analysis/', OrganizationFundMeAnalysisApiView.as_view(), name='org_analysis'),
     path('comment/<int:fundme_id>/', CommentAPIView.as_view(), name='comment'),
+    path('organization/create/fundme/', CreateOrganizationFundMe.as_view(), name='create_organization_fundme')
     
 ]
 

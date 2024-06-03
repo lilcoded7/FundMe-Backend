@@ -308,7 +308,27 @@ class OrganizationFundMeAnalysisApiView(APIView):
                 'organ_fundme':self.get_all_organ_fundme(organization),
                 'organization':OrganizationSerializer(self.get_organization(user.organization)).data,
                 'total_amount_raised':self.total_donations_for_organization(user.organization.id),
-                'all_time_amount_raised':self.get_total_income(user)
+                'all_time_amount_raised_wallet':self.get_total_income(user)
             }
         ])
+
+
+# newly endpoint and not tested all below 
+
+class CreateOrganizationFundMe(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FundMeSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            user = request.user
+
+            if user.organization.is_active:
+                serializer.save()
+                return Response({'message':'FundMe is currently under review, it will be displaied when approved'}, 200)
+            return Response({'message':'Organization is not approved'}, 400)
+        return Response({'message':serializer.errors}, 400)
+    
 
