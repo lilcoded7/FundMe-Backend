@@ -19,7 +19,11 @@ class CreateUserView(generics.GenericAPIView):
         data = self.serializer_class(data=request.data)
         data.is_valid(raise_exception=True)
         user = data.save()
-        EmailSender.register_sucess(user)
+        try:
+                
+            EmailSender.register_sucess(user)
+        except:
+            pass
         # TODO: send verification code to user mail
         return Response({"message": "Account created successfully"})
 

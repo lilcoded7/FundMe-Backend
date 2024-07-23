@@ -158,10 +158,13 @@ class OrganizationApiView(generics.GenericAPIView):
 
     def get(self, request):
         user = request.user
+        organization = Organization.objects.filter(id=user.organization.id, is_active=True).first()
 
-        organization = Organization.objects.filter(id=user.organization.id ,is_active=True)
-        return Response({'organization':self.serializer_class(organization, many=True).data})
-        
+        if organization:
+            serializer = self.serializer_class(organization, context={'request': request})
+            return Response({'organization': serializer.data})
+        else:
+            return Response({'organization': None})
 
     def post(self, request):
         user = request.user
@@ -290,7 +293,7 @@ class OrganizationFundMeAnalysisApiView(APIView):
 
 class CreateOrganizationFundMe(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = FundMeSerializer
+    serializer_class = OrganizationCreateFundMeSerializer
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -300,8 +303,8 @@ class CreateOrganizationFundMe(generics.GenericAPIView):
 
             if user.organization.is_active:
                 serializer.save()
-                return Response({'message':'FundMe is currently under review, it will be displaied when approved'}, 200)
-            return Response({'message':'Organization is not approved'}, 400)
+                return Response({'message':'FundMe is currently under review, it will be live when approved'}, 200)
+            return Response({'message':'Organization is not approved,  contact support info.fundmegh@gmail.com'}, 400)
         return Response({'message':serializer.errors}, 400)
     
 

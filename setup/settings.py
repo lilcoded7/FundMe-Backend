@@ -192,14 +192,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 if DEBUG == True:
     # Mail config
+
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = "smtp.gmail.com"
     EMAIL_USE_TLS = True
     EMAIL_PORT = 587
-    EMAIL_HOST_USER = 'pamikyx@gmail.com'
-    EMAIL_HOST_PASSWORD = 'dnexsbsnemnwlewq'
-    EMAIL_IMAP_HOST = 'imap.gmail.com'
-    EMAIL_IMAP_PORT = 993
+    EMAIL_HOST_USER = 'rossenblay@gmail.com'
+    EMAIL_HOST_PASSWORD = 'wdrsiykwedxdvwrs'
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
     MEDIA_URL = "/media/" 

@@ -12,9 +12,22 @@ from fund.models.transactions import Transactions
 from fund.models.company import Company
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+class OrganizationCreateFundMeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FundMe
+        exclude = ['raised', 'status']
+
+
 
 class FundMeSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
+    category = CategorySerializer()
 
     class Meta:
         model = FundMe
@@ -90,18 +103,24 @@ class SponsorshipSerializer(serializers.ModelSerializer):
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
-    
+    logo = serializers.SerializerMethodField()
+    cert = serializers.SerializerMethodField()
+    category = OrganizationsCategorySerializer
+
     class Meta:
         model = Organization
         exclude = ['is_active']
 
+    def get_logo(self, obj):
+        if obj.logo:
+            return self.context['request'].build_absolute_uri(obj.logo.url)
+        return None
 
+    def get_cert(self, obj):
+        if obj.cert:
+            return self.context['request'].build_absolute_uri(obj.cert.url)
+        return None
 
-class CategorySerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Category
-        fields = '__all__'
 
 
 
