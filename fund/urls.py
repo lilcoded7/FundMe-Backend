@@ -24,12 +24,13 @@ urlpatterns = [
     path("fundme/", include(router.urls)),
     path('donate/<int:fundme_id>/', DonationApiView.as_view(), name='donate'),
     path('organizations/', OrganizationApiView.as_view(), name='organizations'),
-    path('transaction/', TransactionAPIView.as_view(), name='transaction'),
     path('organization/categorys', ListOrganizationCategoryAPIView.as_view(), name='organizationcategory'),
     path('analysis/', FundMeAnalyticsAPIView.as_view(), name='analysis'),
     path('list/organization/fundme/analysis/', OrganizationFundMeAnalysisApiView.as_view(), name='org_analysis'),
     path('comment/<int:fundme_id>/', CommentAPIView.as_view(), name='comment'),
-    path('organization/create/fundme/', CreateOrganizationFundMe.as_view(), name='create_organization_fundme')
+    path('organization/create/fundme/', CreateOrganizationFundMe.as_view(), name='create_organization_fundme'),
+    path('List/organizations/by/category<str:fund_category_id>/', ListOrganizationsByCategory.as_view(), name='categor_org_fundme'),
+    path('list/emergency/funds/', ListEmergencyFund.as_view(), name='list_emergency_fund')
     
 ]
 

@@ -14,8 +14,6 @@ from accounts.models import Gender
 from accounts.serializers import GenderSerializer
 from fund.models.category import Category
 from fund.models.organizations import OrganizationCategory
-from pypaystack import Transaction
-from pypaystack.errors import InvalidDataError
 from fund.models.transactions import Transactions
 from fund.models.organfunme import OrganFund
 from fund.models.company import Company
@@ -178,47 +176,10 @@ class OrganizationApiView(generics.GenericAPIView):
     
 
 class ListUpdateDeleteOrganizationApiView(viewsets.GenericViewSet, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
-    serializer_class = Organization
+    serializer_class = OrganizationSerializer
     permission_classes  = [IsApexAdmin]
     queryset = Organization.objects.all()
 
-from decimal import Decimal
-
-class TransactionAPIView(generics.GenericAPIView):
-    serializer_class = TransactionSerializer
-    permission_classes = [AllowAny]
-
-    def transaction_id(self):
-        return random.randint(0, 99999999)  # Ensure the range is correct
-
-    def process_transaction(self, data):
-        try:
-            amount = Decimal(data['amount'])  # Convert to Decimal
-            transaction = Transaction(authorization_key='sk_live_d4039e928f5d4d81fe00acd97652fed8c60325b3')
-            transaction.charge(
-                email='lilcoded7@gmail.com',
-                auth_code=str(self.transaction_id()),
-                amount=int(amount * 100)
-            )
-            return transaction.verify(str(self.transaction_id()))
-        except InvalidDataError as e:
-            print(f"InvalidDataError: {e}")
-            return False
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return False
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-
-        if serializer.is_valid():
-            data = serializer.data
-
-            if not self.process_transaction(data):
-                return Response({'message': 'Transaction Failed to process'}, status=400)
-          
-            return Response({'message': 'Amount Donated Successfully'}, status=200)
-        return Response({'message': serializer.errors}, status=400)
 
 
 class FundMeAnalyticsAPIView(APIView):
@@ -345,3 +306,19 @@ class CreateOrganizationFundMe(generics.GenericAPIView):
     
 
 
+class ListOrganizationsByCategory(APIView):
+    def get(self, request, fund_category_id):  
+        category = get_object_or_404(Category, id=fund_category_id)
+        fundme = FundMe.objects.filter(category=category)
+        serializer = FundMeSerializer(fundme, many=True, context={'request': request})
+        return Response({'fundme': serializer.data})
+
+
+class ListEmergencyFund(APIView):
+    def get(self, request):
+        fundme_queryset = FundMe.objects.filter(category__name='Emergency')
+
+        serializer = FundMeSerializer(fundme_queryset, many=True, context={'request': request})
+        data = serializer.data
+
+        return Response({'data': data}, status=200)

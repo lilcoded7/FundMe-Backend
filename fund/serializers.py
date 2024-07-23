@@ -12,10 +12,26 @@ from fund.models.transactions import Transactions
 from fund.models.company import Company
 
 
+
 class FundMeSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = FundMe
         fields = '__all__'
+
+    def get_image(self, obj):
+        request = self.context.get('request')
+        
+        # Handle queryset (many=True) and single instance cases
+        if isinstance(obj, list):
+            return [self.build_absolute_image_url(item, request) for item in obj]
+        return self.build_absolute_image_url(obj, request) if obj else None
+
+    def build_absolute_image_url(self, obj, request):
+        if obj.image:
+            return request.build_absolute_uri(obj.image.url)
+        return None
 
 
 class CompanySerializer(serializers.ModelSerializer):
