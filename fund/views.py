@@ -134,9 +134,13 @@ class DonationApiView(generics.GenericAPIView):
 
         organ_fundme = OrganFund.objects.get(fundme=fudnme)
 
+        print(organ_fundme.organization.name, 'organization fund is printed here')
+
         fund_amount = Decimal(amount)
 
-        organ_fundme.organization.balance+=amount
+        organ_fundme.organization.balance+=fund_amount
+        
+        organ_fundme.organization.save()
 
         return True
 
@@ -171,7 +175,7 @@ class DonationApiView(generics.GenericAPIView):
                 
              
             Donation.objects.create(donor_fullname=doner_name, amount=amount, fundme=fundme)
-            return Response({'message': 'Amount Donated Successfully'}, status=200)
+            return Response({'message': 'Amount Funded Successfully'}, status=200)
         return Response({'message': serializer.errors}, status=400)
     
 
