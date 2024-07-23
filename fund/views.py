@@ -18,15 +18,19 @@ from fund.models.transactions import Transactions
 from fund.models.organfunme import OrganFund
 from fund.models.company import Company
 from django.db.models import Sum 
+from decimal import Decimal
 import random
 
 # Create your views here.
 
 
-class ListRetrievefundMedoneAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+class ListRetrievefundMedoneAPIView(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
     queryset = FundMe.objects.all()
     serializer_class = FundMeSerializer
     permission_classes = [AllowAny]
+
+
+
 
 class ListOrganizationCategoryAPIView(APIView):
     permission_classes = [AllowAny]
@@ -126,34 +130,56 @@ class DonationApiView(generics.GenericAPIView):
     serializer_class = DonationSerializer
     permission_classes = [AllowAny]
 
+    def credit_organization_donation(self, fudnme, amount):
+
+        organ_fundme = OrganFund.objects.get(fundme=fudnme)
+
+        fund_amount = Decimal(amount)
+
+        organ_fundme.organization.balance+=amount
+
+        return True
+
+
     def get_doner_name(self, request):
         if request.user.is_authenticated:
             user = request.user
-            EmailSender.donation_sucess(user)
+            try:
+                EmailSender.donation_sucess(user)
+            except:
+                pass
             doner_name = user.username
 
         else:
             doner_name = 'Anonymous'
-        print('we are donation here')
+    
         return doner_name
 
     def post(self, request, fundme_id):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             fundme = get_object_or_404(FundMe, id=fundme_id)
+
+            amount=serializer.validated_data['amount']
             
             doner_name = self.get_doner_name(request)
 
+            try:
+                self.credit_organization_donation(fundme, amount)
+            except:
+                pass 
+                
              
-            Donation.objects.create(donor_fullname=doner_name, amount=serializer.validated_data['amount'], fundme=fundme)
+            Donation.objects.create(donor_fullname=doner_name, amount=amount, fundme=fundme)
             return Response({'message': 'Amount Donated Successfully'}, status=200)
         return Response({'message': serializer.errors}, status=400)
     
 
 
 
+
 class OrganizationApiView(generics.GenericAPIView):
-    serializer_class = OrganizationSerializer
+    serializer_class = CreateOrganizationSerializer
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -161,7 +187,7 @@ class OrganizationApiView(generics.GenericAPIView):
         organization = Organization.objects.filter(id=user.organization.id, is_active=True).first()
 
         if organization:
-            serializer = self.serializer_class(organization, context={'request': request})
+            serializer = OrganizationSerializer(organization, context={'request': request})
             return Response({'organization': serializer.data})
         else:
             return Response({'organization': None})
@@ -325,3 +351,16 @@ class ListEmergencyFund(APIView):
         data = serializer.data
 
         return Response({'data': data}, status=200)
+    
+
+class ListActiveFundMeAPIView(APIView):
+    def get(self, request):
+
+        fundme = FundMe.objects.filter(is_active=True)
+
+        data = FundMeSerializer(fundme, many=True, context={'request': request}).data
+
+        return Response({'fundme':data}, 200)
+
+
+

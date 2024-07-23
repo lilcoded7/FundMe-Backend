@@ -102,6 +102,12 @@ class SponsorshipSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CreateOrganizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        exclude = ['balance', 'is_active']
+
+
 class OrganizationSerializer(serializers.ModelSerializer):
     logo = serializers.SerializerMethodField()
     cert = serializers.SerializerMethodField()
@@ -109,7 +115,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Organization
-        exclude = ['is_active']
+        fields = '__all__'
 
     def get_logo(self, obj):
         if obj.logo:
