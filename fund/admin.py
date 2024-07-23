@@ -10,10 +10,11 @@ from fund.models.donates import Donation
 from fund.models.comments import CommentReaction
 from fund.models.transactions import Transactions
 from fund.models.organfunme import OrganFund
+from fund.models.contacts import Contact
 # Register your models here.
 
 
-
+admin.site.register(Contact)
 admin.site.register(Category)
 admin.site.register(Organization)
 admin.site.register(FundMe)

@@ -23,7 +23,6 @@ class FundMeSerializer(serializers.ModelSerializer):
     def get_image(self, obj):
         request = self.context.get('request')
         
-        # Handle queryset (many=True) and single instance cases
         if isinstance(obj, list):
             return [self.build_absolute_image_url(item, request) for item in obj]
         return self.build_absolute_image_url(obj, request) if obj else None
