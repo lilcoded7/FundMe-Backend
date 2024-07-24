@@ -19,6 +19,10 @@ from fund.models.organfunme import OrganFund
 from fund.models.company import Company
 from django.db.models import Sum 
 from decimal import Decimal
+from django.db.models import Q
+from django.utils import timezone
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
 import random
 
 # Create your views here.
@@ -29,6 +33,11 @@ class ListRetrievefundMedoneAPIView(viewsets.GenericViewSet, mixins.RetrieveMode
     serializer_class = FundMeSerializer
     permission_classes = [AllowAny]
 
+
+class SliderViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+    queryset = FundMe.objects.all()
+    serializer_class = SliderSerializer
+    permission_classes = [AllowAny]
 
 
 
@@ -56,7 +65,6 @@ class CreateSponsorshipViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin)
     serializer_class = SponsorshipSerializer
     permission_classes  = [IsAuthenticated]
     queryset = Sponsorship.objects.all()
-
 
 
 
@@ -279,12 +287,13 @@ class OrganizationFundMeAnalysisApiView(APIView):
         return get_object_or_404(Organization, id=organization.id)
 
     def get_all_organ_fundme(self, org_fundme, request):
-        return [
-            {
-                'organ_fundme': FundMeSerializer(FundMe.objects.filter(id=fund.id), many=True, context={'request': request}).data
-            }
-            for fund in org_fundme
-        ]
+        serialized_data = FundMeSerializer(
+            FundMe.objects.filter(id__in=[fund.id for fund in org_fundme]),
+            many=True,
+            context={'request': request}
+        ).data
+        
+        return serialized_data
     
     def get_total_income(self, user):
         return Organization.objects.filter(id=user.organization.id).aggregate(total=Sum('balance'))['total']
@@ -339,11 +348,12 @@ class ListOrganizationsByCategory(APIView):
         category = get_object_or_404(Category, id=fund_category_id)
         fundme = FundMe.objects.filter(category=category)
         serializer = FundMeSerializer(fundme, many=True, context={'request': request})
-        return Response({'fundme': serializer.data})
+        return Response({'fundme': serializer.data}, 200)
 
 
 class ListEmergencyFund(APIView):
     def get(self, request):
+        user = request.user
         fundme_queryset = FundMe.objects.filter(category__name='Emergency')
 
         serializer = FundMeSerializer(fundme_queryset, many=True, context={'request': request})
@@ -363,3 +373,89 @@ class ListActiveFundMeAPIView(APIView):
 
 
 
+
+class WithdrawFundAPIView(APIView):
+    serializer_class = WithdrawalSerializer
+
+    def post(self, request, organization_id):
+        print('request is passing ')
+        try:
+            organization = Organization.objects.get(id=organization_id)
+            print(organization, 'organ is passing here')
+        except Organization.DoesNotExist:
+            return Response({'message': 'Organization not found'}, 400)
+
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            amount = serializer.validated_data['amount']
+
+            organ_balance = organization.balance
+
+            if not organ_balance >= amount:
+                return Response({'message': 'Insufficient balance'}, 400)
+            
+            num = random.randint(000000, 999999)
+
+            organization.balance -= amount
+            organization.save()
+
+            transaction = Transactions.objects.create(
+                status='Pending', organization=organization, trans_id=num, amount=amount
+            )
+
+            if transaction:
+                return Response({'message': 'We are currently processing your withdrawal request'}, 200)
+
+        return Response(serializer.errors, 400)    
+
+
+class TransactionsAPIView(APIView):
+    serializer_class = TransactionsSerializer
+
+    def get(self, request, organization_id):
+        filter_type = request.query_params.get('filter_type')
+
+        if filter_type:
+            if filter_type == 'today':
+                start_date = timezone.now().date()
+                end_date = timezone.now().date()
+            elif filter_type == 'week':
+                today = timezone.now().date()
+                start_date = today - timezone.timedelta(days=today.weekday())
+                end_date = start_date + timezone.timedelta(days=6)
+            elif filter_type == 'month':
+                start_date = timezone.now().replace(day=1).date()
+                end_date = timezone.now().date()
+            else:
+                return Response({'message': 'Invalid filter_type'}, status=400)
+
+            transactions = Transactions.objects.filter(
+                organization_id=organization_id,
+                timestamp__date__range=[start_date, end_date]
+            )
+        else:
+            transactions = Transactions.objects.filter(organization_id=organization_id)
+
+        serializer = self.serializer_class(transactions, many=True)
+        return Response(serializer.data)
+
+
+class organizationGraph(APIView):
+    serializer_class = DonationSerializer
+
+    def get(self, request, organization_id):
+        try:
+            organ_fund = OrganFund.objects.get(organization__id=organization_id)
+        except OrganFund.DoesNotExist:
+            return Response({'message': 'Organization funding details not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        monthly_donations = Donation.objects.filter(fundme=organ_fund.fundme) \
+            .annotate(month=TruncMonth('timestamp')) \
+            .values('month') \
+            .annotate(total_amount=Sum('amount')) \
+            .order_by('-month')
+
+        serializer = self.serializer_class(monthly_donations, many=True)
+
+        return Response(serializer.data)

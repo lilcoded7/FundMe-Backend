@@ -11,9 +11,12 @@ from fund.models.comments import CommentReaction
 from fund.models.transactions import Transactions
 from fund.models.organfunme import OrganFund
 from fund.models.contacts import Contact
+from fund.models.sliders import Slider
 # Register your models here.
 
 
+
+admin.site.register(Slider)
 admin.site.register(Contact)
 admin.site.register(Category)
 admin.site.register(Organization)

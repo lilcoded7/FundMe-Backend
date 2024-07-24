@@ -20,9 +20,6 @@ def get_user_ip_address(request):
 
 
 
-
-
-
 class EmailSender:
     def send_email(self, data):
         email = EmailMessage(

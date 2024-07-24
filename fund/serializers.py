@@ -10,6 +10,22 @@ from fund.models.category import Category
 from fund.models.organizations import OrganizationCategory
 from fund.models.transactions import Transactions
 from fund.models.company import Company
+from fund.models.sliders import Slider
+
+class WithdrawalSerializer(serializers.Serializer):
+    amount = serializers.DecimalField(max_digits=11, decimal_places=2)
+
+    def validate_amount(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Amount cannot be less than 0.")
+        return value
+
+
+class TransactionsSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Transactions
+        fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -70,6 +86,13 @@ class DonationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Donation
         fields = ['amount']
+
+
+
+class SliderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Slider
+        fields = '__all__'
     
 
 

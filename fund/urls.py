@@ -18,6 +18,7 @@ router.register('list/commets', ListRegiriveCommentsApiView, basename='list_comm
 router.register('create/sponsorship', CreateSponsorshipViewSet, basename='create_sponshorship')
 router.register('create/bank/account', CreateBankAccountViewSet, basename='bankaccount')
 router.register('bank/retrieve/account', ListRetrieveBankAccountViewSet, basename='listbankaccount')
+router.register('sliders/', SliderViewSet, basename='slider')
 
 
 urlpatterns = [
@@ -31,7 +32,11 @@ urlpatterns = [
     path('organization/create/fundme/', CreateOrganizationFundMe.as_view(), name='create_organization_fundme'),
     path('List/organizations/by/category<str:fund_category_id>/', ListOrganizationsByCategory.as_view(), name='categor_org_fundme'),
     path('list/emergency/funds/', ListEmergencyFund.as_view(), name='list_emergency_fund'),
-    path('list/all/fund/me/', ListActiveFundMeAPIView.as_view(), name='list_all_fund_me')
+    path('list/all/fund/me/', ListActiveFundMeAPIView.as_view(), name='list_all_fund_me'),
+    path('withdraw/organization/fundme/<str:organization_id>/', WithdrawFundAPIView.as_view(), name='withdraw_organ_amount'),
+    path('transactions/<str:organization_id>/', TransactionsAPIView.as_view(), name='transactions'),
+    path('organization_graph/<str:organization_id>/', organizationGraph.as_view(), name='organization_graph')
+    
     
 ]
 
