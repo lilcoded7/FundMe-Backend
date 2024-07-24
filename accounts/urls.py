@@ -15,4 +15,5 @@ urlpatterns = [
         PasswordResetRequestCodeView.as_view(),
         name="accounts_password_request_code",
     ),
+    path('', home, name='home')
 ]

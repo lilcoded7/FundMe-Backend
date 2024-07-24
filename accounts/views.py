@@ -5,6 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from fund.notifications import EmailSender
+from django.shortcuts import render
 # local app imports
 from accounts.models import User, UserVerificationCode
 from .serializers import *
@@ -135,3 +136,8 @@ class PasswordResetView(generics.GenericAPIView):
             verify_code.delete()
             return Response({"message": "Password reset successful"})
         return Response({"message": "Invalid or expired code provided"}, 400)
+    
+
+
+def home(request):
+    return render(request, 'mails/register_sucess.html')
