@@ -37,6 +37,5 @@ urlpatterns = [
     path('transactions/<str:organization_id>/', TransactionsAPIView.as_view(), name='transactions'),
     path('organization_graph/<str:organization_id>/', organizationGraph.as_view(), name='organization_graph')
     
-    
 ]
 
