@@ -134,8 +134,6 @@ class DonationApiView(generics.GenericAPIView):
 
         organ_fundme = OrganFund.objects.get(fundme=fudnme)
 
-        print(organ_fundme.organization.name, 'organization fund is printed here')
-
         fund_amount = Decimal(amount)
 
         organ_fundme.organization.balance+=fund_amount
@@ -269,55 +267,52 @@ class ListDonationfundMedoneAPIView(viewsets.GenericViewSet, mixins.ListModelMix
     permission_classes = [IsAuthenticated]
 
 
-
 class OrganizationFundMeAnalysisApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def total_donations_for_organization(self, organization_id):
-            
         fundme_ids = OrganFund.objects.filter(organization_id=organization_id).values_list('fundme_id', flat=True)
-        
         total_donations = Donation.objects.filter(fundme_id__in=fundme_ids).aggregate(total_amount=Sum('amount'))
-        
         return total_donations['total_amount'] if total_donations['total_amount'] is not None else 0.00
-    
 
     def get_organization(self, organization):
         return get_object_or_404(Organization, id=organization.id)
 
-    def get_all_organ_fundme(self, org_fundme):
-
+    def get_all_organ_fundme(self, org_fundme, request):
         return [
             {
-                'organ_fundme':FundMeSerializer(FundMe.objects.filter(id=fund.id), many=True).data
+                'organ_fundme': FundMeSerializer(FundMe.objects.filter(id=fund.id), many=True, context={'request': request}).data
             }
             for fund in org_fundme
         ]
     
     def get_total_income(self, user):
-        return Organization.objects.filter(id=user.organization.id).aggregate(total=Sum('wallet'))['total']
+        return Organization.objects.filter(id=user.organization.id).aggregate(total=Sum('balance'))['total']
     
     def get_organ_bank_account(self, user):
-        bank_account = get_object_or_404(BankAccount, user=user.id)
-
-        return BankAccountSerializer(bank_account).data
+        bank_account = None
+        try:
+            bank_account = BankAccount.objects.get(user=user.id)
+        except:
+            pass 
+        data = BankAccountSerializer(bank_account).data
+        return data if data else 'Bank info Pending'
   
     def get(self, request):
         user = request.user 
-
         organization = OrganFund.objects.filter(organization=user.organization.id)
+        serializer_context = {'request': request} 
 
         return Response([
             {
-                'total_org_fundme':organization.count(),
-                'organ_fundme':self.get_all_organ_fundme(organization),
-                'organization':OrganizationSerializer(self.get_organization(user.organization)).data,
-                'total_amount_raised':self.total_donations_for_organization(user.organization.id),
-                'all_time_amount_raised_wallet':self.get_total_income(user),
-                'bank_account':self.get_organ_bank_account(user)
+                'total_org_fundme': organization.count(),
+                'organ_fundme': self.get_all_organ_fundme(organization, request),
+                'organization': OrganizationSerializer(self.get_organization(user.organization), context=serializer_context).data,
+                'total_amount_raised': self.total_donations_for_organization(user.organization.id),
+                'all_time_amount_raised_wallet': self.get_total_income(user),
+                'bank_account': self.get_organ_bank_account(user)
             }
         ])
-
 
 # newly endpoint and not tested all below 
 
