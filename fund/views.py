@@ -187,7 +187,6 @@ class DonationApiView(generics.GenericAPIView):
 
 
 
-
 class OrganizationApiView(generics.GenericAPIView):
     serializer_class = CreateOrganizationSerializer
     permission_classes = [IsAuthenticated]

@@ -141,4 +141,8 @@ class PasswordResetView(generics.GenericAPIView):
 
 
 def home(request):
+    
+
+
+
     return render(request, 'mails/register_sucess.html')

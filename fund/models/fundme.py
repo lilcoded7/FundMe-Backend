@@ -19,6 +19,7 @@ class FundMe(TimeBaseModel):
     location = models.CharField(max_length=100, null=True, blank=True)
     target = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     raised = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, null=True, blank=True)
+    organizer_name = models.CharField(max_length=100, null=True, blank=True)
     is_active = models.BooleanField(default=False, null=True, blank=True)
 
     def __str__(self) -> str:
