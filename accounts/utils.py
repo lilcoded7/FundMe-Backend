@@ -53,6 +53,17 @@ class EmailSender:
         self.send_email(data)
 
 
+    def send_fundme_(self, user):
+        context = {'user':user}
+        message = render_to_string('mails/fundme_success.html', context)
+        data = {
+            'email_subject':'Fund | Me',
+            'email_body': message,
+            'to_email':user.email
+            }
+        self.send_email(data)
+
+
     def send_create_organization_success(self, user):
         message = render_to_string('mails/organization_success.html', user)
         data = {

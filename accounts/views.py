@@ -4,12 +4,13 @@ from rest_framework import viewsets, mixins, generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from fund.notifications import EmailSender
+from accounts.utils import *
 from django.shortcuts import render
 # local app imports
 from accounts.models import User, UserVerificationCode
 from .serializers import *
 from .middlewares import UserMiddlewares
+from fund.notifications import EmailSender
 
 
 class CreateUserView(generics.GenericAPIView):
