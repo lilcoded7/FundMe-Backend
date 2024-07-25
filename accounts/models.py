@@ -56,7 +56,7 @@ class User(AbstractBaseUser):
 	gender = models.ForeignKey(Gender, on_delete=models.CASCADE, null=True, blank=True)
 	
 
-	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True)
+	organization = models.OneToOneField(Organization, on_delete=models.CASCADE, null=True, blank=True)
 	sponsorship = models.ForeignKey(Sponsorship, on_delete=models.CASCADE, null=True, blank=True)
 	
 	is_active = models.BooleanField(default=True)

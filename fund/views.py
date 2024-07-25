@@ -286,13 +286,17 @@ class OrganizationFundMeAnalysisApiView(APIView):
         return get_object_or_404(Organization, id=organization.id)
 
     def get_all_organ_fundme(self, org_fundme, request):
-        serialized_data = FundMeSerializer(
-            FundMe.objects.filter(id__in=[fund.id for fund in org_fundme]),
-            many=True,
-            context={'request': request}
-        ).data
+        fundme= None
+        total_org_fundme=None
+
+        if org_fundme:
+                
+            
+            fundme = FundMe.objects.filter(id=org_fundme.fundme.id)
+
+            total_org_fundme = fundme.count()
         
-        return serialized_data
+        return FundMeSerializer(fundme, many=True, context={'request':request}).data, total_org_fundme
     
     def get_total_income(self, user):
         return Organization.objects.filter(id=user.organization.id).aggregate(total=Sum('balance'))['total']
@@ -308,13 +312,16 @@ class OrganizationFundMeAnalysisApiView(APIView):
   
     def get(self, request):
         user = request.user 
-        organization = OrganFund.objects.filter(organization=user.organization.id)
+        organization = OrganFund.objects.filter(organization=user.organization.id).first()
+
         serializer_context = {'request': request} 
+
+        organ_fundme, total_organ_fundme = self.get_all_organ_fundme(organization, request)
 
         return Response([
             {
-                'total_org_fundme': organization.count(),
-                'organ_fundme': self.get_all_organ_fundme(organization, request),
+                'total_org_fundme': total_organ_fundme,
+                'organ_fundme': organ_fundme,
                 'organization': OrganizationSerializer(self.get_organization(user.organization), context=serializer_context).data,
                 'total_amount_raised': self.total_donations_for_organization(user.organization.id),
                 'all_time_amount_raised_wallet': self.get_total_income(user),
@@ -335,8 +342,13 @@ class CreateOrganizationFundMe(generics.GenericAPIView):
             user = request.user
 
             if user.organization.is_active:
-                serializer.save()
-                return Response({'message':'FundMe is currently under review, it will be live when approved'}, 200)
+                fund_me = serializer.save()
+                organ_funme = OrganFund.objects.create(
+                    fundme=fund_me, organization=user.organization
+                )
+                if organ_funme:
+                        
+                    return Response({'message':'FundMe is currently under review, it will be live when approved'}, 200)
             return Response({'message':'Organization is not approved,  contact support info.fundmegh@gmail.com'}, 400)
         return Response({'message':serializer.errors}, 400)
     
@@ -353,7 +365,7 @@ class ListOrganizationsByCategory(APIView):
 class ListEmergencyFund(APIView):
     def get(self, request):
         user = request.user
-        fundme_queryset = FundMe.objects.filter(category__name='Emergency')
+        fundme_queryset = FundMe.objects.filter(category__status='Emergency')
 
         serializer = FundMeSerializer(fundme_queryset, many=True, context={'request': request})
         data = serializer.data
@@ -447,7 +459,7 @@ class organizationGraph(APIView):
         try:
             organ_fund = OrganFund.objects.get(organization__id=organization_id)
         except OrganFund.DoesNotExist:
-            return Response({'message': 'Organization funding details not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Organization funding details not found'}, 200)
 
         monthly_donations = Donation.objects.filter(fundme=organ_fund.fundme) \
             .annotate(month=TruncMonth('timestamp')) \

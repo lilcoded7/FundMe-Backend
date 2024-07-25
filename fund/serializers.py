@@ -42,14 +42,14 @@ class OrganizationCreateFundMeSerializer(serializers.ModelSerializer):
 
 
 class FundMeSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
+    fund_image = serializers.SerializerMethodField()
     category = CategorySerializer()
 
     class Meta:
         model = FundMe
         fields = '__all__'
 
-    def get_image(self, obj):
+    def get_fund_image(self, obj):  
         request = self.context.get('request')
         
         if isinstance(obj, list):
@@ -57,9 +57,10 @@ class FundMeSerializer(serializers.ModelSerializer):
         return self.build_absolute_image_url(obj, request) if obj else None
 
     def build_absolute_image_url(self, obj, request):
-        if obj.image:
-            return request.build_absolute_uri(obj.image.url)
+        if obj.fund_image:
+            return request.build_absolute_uri(obj.fund_image.url)
         return None
+
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -134,7 +135,7 @@ class CreateOrganizationSerializer(serializers.ModelSerializer):
 class OrganizationSerializer(serializers.ModelSerializer):
     logo = serializers.SerializerMethodField()
     cert = serializers.SerializerMethodField()
-    category = OrganizationsCategorySerializer
+    category = OrganizationsCategorySerializer()
 
     class Meta:
         model = Organization
