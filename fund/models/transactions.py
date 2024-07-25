@@ -5,7 +5,8 @@ from django.db import models
 
 class Transactions(TimeBaseModel):
     TYPE = [
-        ('withdraw', 'withdraw')
+        ('Pending', 'pending'),
+        ('Credited', 'Credited')
     ]
 
     status = models.CharField(max_length=60, choices=TYPE, null=True, blank=True)

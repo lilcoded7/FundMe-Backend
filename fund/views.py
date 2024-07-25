@@ -225,47 +225,154 @@ class FundMeAnalyticsAPIView(APIView):
         fundme = FundMe.objects.all()
         return fundme.count()
 
-    def total_organization(self):
-        organization = Organization.objects.all()
-        return organization.count()
+    def get_all_fundme(self):
+        fundme = FundMe.objects.all()
+        total_fundme = fundme.count()
+        return  total_fundme
     
+    def get_all_donation(self):
+        donation = Donation.objects.all()
+        total_donation_amount = donation.aggregate(total=Sum('amount'))['total']
+        total_donation = donation.count()
+        return total_donation if total_donation else 0, total_donation_amount if total_donation_amount else 0.00
+
     def total_sponsorship(self):
         sponsorship = Sponsorship.objects.all()
-        return sponsorship.count()
+        total_sponsors = sponsorship.count()
+        return total_sponsors if total_sponsors else 0
     
-    def total_donations(self):
-        return Donation.objects.aggregate(total=Sum('amount'))['total']
+    def get_all_time_total_transactions_amount(self):
 
-    def all_time_profit(self):
-        return Company.objects.aggregate(total=Sum('wallet'))['total']
-    
-    def get_total_individual_organization(self):
-        return Organization.objects.filter(name='Individual').count()
-    
-    def get_total_charity_organization(self):
-        return Organization.objects.filter(name='Charity').count()
-    
-    def get_bank_account(self, user):
-        return get_object_or_404(BankAccount, user=user.id)
+        total_pending_amount = Transactions.objects.filter(status='pending').aggregate(total=Sum('amount'))['total']
+        total_credited_amount = Transactions.objects.filter(status='credited').aggregate(total=Sum('amount'))['total']
+
+        return total_pending_amount if total_pending_amount else 0.00, total_credited_amount if total_credited_amount else 0.00
+
+    def all_time_company_management(self):
+        fundme_management = Company.objects.get(name='FundMe')
+        return CompanySerializer(fundme_management).data
     
 
     def get(self, request):
 
-        user = request.user 
+        organization = Organization.objects.all()
+
+        total_organization = organization.count()
+
+        sponsorhips = Sponsorship.objects.all()
+        total_sponsorhips = sponsorhips.count()
+
+        all_fundme, total_fundme = self.get_all_fundme(request)
+
+        total_donation_amount, total_donation  = self.get_all_donation()
+
+        total_pending_amount, total_credited_amount = self.get_all_time_total_transactions_amount()
         
         request_body = {
-            'total_fundme':self.total_fundme(),
-            'total_organization':self.total_organization(),
-            'total_sponsorship':self.total_sponsorship(),
-            'total_donations':self.total_donations(),
-            'get_total_individual_organization':self.get_total_individual_organization(),
-            'get_total_charity_organization':self.get_total_charity_organization(),
-            'all_time_profit':self.all_time_profit(),
-            'bank_account':self.get_bank_account(user)
+            'total_organization':total_organization,
+            'sponsorships':sponsorhips,
+            'total_sponsorship':total_sponsorhips,
+            'all_fundme':all_fundme,
+            'total_fundme':total_fundme,
+            'total_donation_amount':total_donation_amount,
+            'total_donation':total_donation,
+            'total_pending_amount':total_pending_amount,
+            'total_credited_amount':total_credited_amount,
+            'fundme_management':self.all_time_company_management(),
 
         }
         return Response({'analysis':request_body})
+    
 
+class ListOrganizationAdminAPIView(APIView):
+
+    def status_type(self, request):
+        status = request.query_params.get('status')
+        start_date = None
+        end_date = None
+        if status:
+            status == 'today'
+            start_date = timezone.now().date()
+            end_date = timezone.now().date()
+        elif status == 'week':
+            today = timezone.now().date()
+            start_date = today - timezone.timedelta(days=today.weekday())
+            end_date = start_date + timezone.timedelta(days=6)
+        elif status=='month':
+            today = timezone.now().date()
+            start_date = timezone.now().replace(day=1).date()
+            end_date = timezone.now().date()
+        elif status == 'active':
+            organ_status = organ_status
+        elif status == 'not active':
+            organ_status = status
+        else:
+            return 'not found'
+        return start_date, end_date, organ_status
+            
+
+    def get(self, request):
+        start_data, end_date, organ_status = self.status_type(request)
+        
+        organ_flileter = Organization.objects.filter(timestamp__date__range=[start_data, end_date])
+
+        if organ_flileter:
+            organization = organ_flileter
+        elif organ_status == 'active':
+            organization = Organization.objects.filter(is_active=True)
+            
+        elif organ_status == 'not active':
+            organization = Organization.objects.filter(is_active=False)
+        else:
+            organizations = Organization.objects.all()
+
+        organizations = OrganizationSerializer(organization, many=True, context={'request':request})
+        
+        return Response({'organizations':organizations})
+
+            
+
+class ListTransactionsAdminAPIView(APIView):
+    def status_type(self, request):
+        status = request.query_params.get('status')
+        start_date = None
+        end_date = None
+        if status:
+            status == 'today'
+            start_date = timezone.now().date()
+            end_date = timezone.now().date()
+        elif status == 'week':
+            today = timezone.now().date()
+            start_date = today - timezone.timedelta(days=today.weekday())
+            end_date = start_date + timezone.timedelta(days=6)
+        elif status=='month':
+            today = timezone.now().date()
+            start_date = timezone.now().replace(day=1).date()
+            end_date = timezone.now().date()
+        elif status == 'Pending':
+            trans_status = status
+        elif status == 'Credited':
+            trans_status = status
+        else:
+            return 'not found'
+        return start_date, end_date, trans_status
+            
+
+    def get(self, request):
+        start_data, end_date, trans_status = self.status_type(request)
+        transaction = Transactions.objects.all()
+
+        if transaction:
+            transaction = Transactions(timestamp__date__range=[start_data, end_date])
+        elif trans_status:
+            transaction = Transactions.objects.filter(status=trans_status)
+            
+        else:
+            transaction = Transactions.objects.all()
+
+        transactions = TransactionsSerializer(transaction, many=True)
+        
+        return Response({'transactions':transactions})
 
 
 class ListDonationfundMedoneAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
@@ -329,7 +436,6 @@ class OrganizationFundMeAnalysisApiView(APIView):
             }
         ])
 
-# newly endpoint and not tested all below 
 
 class CreateOrganizationFundMe(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
@@ -364,7 +470,6 @@ class ListOrganizationsByCategory(APIView):
 
 class ListEmergencyFund(APIView):
     def get(self, request):
-        user = request.user
         fundme_queryset = FundMe.objects.filter(category__status='Emergency')
 
         serializer = FundMeSerializer(fundme_queryset, many=True, context={'request': request})
@@ -392,7 +497,7 @@ class WithdrawFundAPIView(APIView):
         print('request is passing ')
         try:
             organization = Organization.objects.get(id=organization_id)
-            print(organization, 'organ is passing here')
+           
         except Organization.DoesNotExist:
             return Response({'message': 'Organization not found'}, 400)
 
