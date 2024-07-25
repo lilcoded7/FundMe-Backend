@@ -290,45 +290,46 @@ class ListOrganizationAdminAPIView(APIView):
         status = request.query_params.get('status')
         start_date = None
         end_date = None
-        if status:
-            status == 'today'
+        organ_status = None
+
+        if status == 'today':
             start_date = timezone.now().date()
             end_date = timezone.now().date()
         elif status == 'week':
             today = timezone.now().date()
             start_date = today - timezone.timedelta(days=today.weekday())
             end_date = start_date + timezone.timedelta(days=6)
-        elif status=='month':
+        elif status == 'month':
             today = timezone.now().date()
-            start_date = timezone.now().replace(day=1).date()
-            end_date = timezone.now().date()
+            start_date = today.replace(day=1)
+            end_date = today.replace(day=1) + timezone.timedelta(days=31)
+            end_date = end_date.replace(day=1) - timezone.timedelta(days=1)
         elif status == 'active':
-            organ_status = organ_status
+            organ_status = 'active'
         elif status == 'not active':
-            organ_status = status
+            organ_status = 'not active'
         else:
-            return 'not found'
+            return None, None, None  
+
         return start_date, end_date, organ_status
             
 
     def get(self, request):
-        start_data, end_date, organ_status = self.status_type(request)
-        
-        organ_flileter = Organization.objects.filter(timestamp__date__range=[start_data, end_date])
+        start_date, end_date, organ_status = self.status_type(request)
 
-        if organ_flileter:
-            organization = organ_flileter
-        elif organ_status == 'active':
-            organization = Organization.objects.filter(is_active=True)
-            
-        elif organ_status == 'not active':
-            organization = Organization.objects.filter(is_active=False)
+        if start_date and end_date:
+            organ_filter = Organization.objects.filter(timestamp__date__range=[start_date, end_date])
         else:
-            organizations = Organization.objects.all()
+            organ_filter = Organization.objects.all()
 
-        organizations = OrganizationSerializer(organization, many=True, context={'request':request})
-        
-        return Response({'organizations':organizations})
+        if organ_status == 'active':
+            organ_filter = organ_filter.filter(is_active=True)
+        elif organ_status == 'not active':
+            organ_filter = organ_filter.filter(is_active=False)
+
+        organizations = OrganizationSerializer(organ_filter, many=True, context={'request': request})
+
+        return Response({'organizations': organizations.data})
 
             
 
@@ -337,42 +338,40 @@ class ListTransactionsAdminAPIView(APIView):
         status = request.query_params.get('status')
         start_date = None
         end_date = None
-        if status:
-            status == 'today'
+        trans_status = None
+
+        if status == 'today':
             start_date = timezone.now().date()
             end_date = timezone.now().date()
         elif status == 'week':
             today = timezone.now().date()
             start_date = today - timezone.timedelta(days=today.weekday())
             end_date = start_date + timezone.timedelta(days=6)
-        elif status=='month':
+        elif status == 'month':
             today = timezone.now().date()
-            start_date = timezone.now().replace(day=1).date()
-            end_date = timezone.now().date()
-        elif status == 'Pending':
-            trans_status = status
-        elif status == 'Credited':
+            start_date = today.replace(day=1)
+            end_date = (today.replace(day=1) + timezone.timedelta(days=31)).replace(day=1) - timezone.timedelta(days=1)
+        elif status in ['Pending', 'Credited']:
             trans_status = status
         else:
-            return 'not found'
+            return None, None, None
+
         return start_date, end_date, trans_status
-            
 
     def get(self, request):
-        start_data, end_date, trans_status = self.status_type(request)
-        transaction = Transactions.objects.all()
+        start_date, end_date, trans_status = self.status_type(request)
 
-        if transaction:
-            transaction = Transactions(timestamp__date__range=[start_data, end_date])
-        elif trans_status:
-            transaction = Transactions.objects.filter(status=trans_status)
-            
+        if start_date and end_date:
+            transactions = Transactions.objects.filter(timestamp__date__range=[start_date, end_date])
         else:
-            transaction = Transactions.objects.all()
+            transactions = Transactions.objects.all()
 
-        transactions = TransactionsSerializer(transaction, many=True)
+        if trans_status:
+            transactions = transactions.filter(status=trans_status)
+
+        serialized_transactions = TransactionsSerializer(transactions, many=True)
         
-        return Response({'transactions':transactions})
+        return Response({'transactions': serialized_transactions.data})
 
 
 class ListDonationfundMedoneAPIView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):

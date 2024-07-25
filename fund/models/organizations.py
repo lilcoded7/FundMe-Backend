@@ -24,7 +24,7 @@ class Organization(TimeBaseModel):
     cert = models.FileField(null=True, blank=True)
     about_organ = models.TextField(null=True, blank=True)
     organ_website = models.CharField(max_length=100, null=True, blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     
 
     def __str__(self):
