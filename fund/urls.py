@@ -37,7 +37,8 @@ urlpatterns = [
     path('transactions/<str:organization_id>/', TransactionsAPIView.as_view(), name='transactions'),
     path('organization_graph/<str:organization_id>/', organizationGraph.as_view(), name='organization_graph'),
     path('list/all/transactions/admin/', ListTransactionsAdminAPIView.as_view(), name='list_transactions_admin'),
-    path('list/organization/admin/', ListOrganizationAdminAPIView.as_view(), name='list_organization_admin')
+    path('list/organization/admin/', ListOrganizationAdminAPIView.as_view(), name='list_organization_admin'),
+    path('chat/bot/ai/', chat_bot_ai, name='chat_bot_ai')
     
 ]
 

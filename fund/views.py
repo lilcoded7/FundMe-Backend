@@ -574,3 +574,9 @@ class organizationGraph(APIView):
         serializer = self.serializer_class(monthly_donations, many=True)
 
         return Response(serializer.data)
+
+
+
+def chat_bot_ai(request):
+    
+    return render(request, 'chat_bot.html')
