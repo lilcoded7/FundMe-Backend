@@ -575,8 +575,25 @@ class organizationGraph(APIView):
 
         return Response(serializer.data)
 
+from rest_framework.exceptions import NotFound
+
+class ListFundmeDetails(APIView):
+    def get(self, request, fundme_id):
+        try:
+            fundme = FundMe.objects.get(id=fundme_id)
+        except FundMe.DoesNotExist:
+            raise NotFound(detail="FundMe with this ID does not exist.")
+
+        donations = Donation.objects.filter(fundme=fundme)
+        serializer = DonationsSerializer(donations, many=True)
+
+        return Response({'data': serializer.data})
+
 
 
 def chat_bot_ai(request):
+
     
     return render(request, 'chat_bot.html')
+
+

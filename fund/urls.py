@@ -38,7 +38,8 @@ urlpatterns = [
     path('organization_graph/<str:organization_id>/', organizationGraph.as_view(), name='organization_graph'),
     path('list/all/transactions/admin/', ListTransactionsAdminAPIView.as_view(), name='list_transactions_admin'),
     path('list/organization/admin/', ListOrganizationAdminAPIView.as_view(), name='list_organization_admin'),
-    path('chat/bot/ai/', chat_bot_ai, name='chat_bot_ai')
+    path('list/fundme/donation/details/<str:fundme_id>/', ListFundmeDetails.as_view(), name='list_fundme_details'),
+    path('chat/bot/ai/', chat_bot_ai, name='chat_bot_ai'),
     
 ]
 

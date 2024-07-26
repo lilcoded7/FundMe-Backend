@@ -12,6 +12,7 @@ from fund.models.transactions import Transactions
 from fund.models.organfunme import OrganFund
 from fund.models.contacts import Contact
 from fund.models.sliders import Slider
+from fund.models.chat_bot import ChatBot
 # Register your models here.
 
 
@@ -31,3 +32,4 @@ admin.site.register(CommentReaction)
 admin.site.register(Transactions)
 admin.site.register(OrganFund)
 admin.site.register(BankAccount)
+admin.site.register(ChatBot)

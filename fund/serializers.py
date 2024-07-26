@@ -88,6 +88,13 @@ class DonationSerializer(serializers.ModelSerializer):
         model = Donation
         fields = ['amount']
 
+    
+class DonationsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Donation
+        fields = ['donor_fullname', 'amount', 'fundme', 'timestamp']
+
 
 
 class SliderSerializer(serializers.ModelSerializer):
